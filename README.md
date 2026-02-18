@@ -25,6 +25,16 @@ Webová aplikace pro vedení šipkařské ligy a zápasů. Běží lokálně na 
 - **Zvuk / „hospodský mód“** (hlášky, emoce – CZ)
 - **Import / export dat** do **JSON** (záloha, přenos na jiné zařízení)
 
+![volba](screenshots/volba.png)
+
+![master](screenshots/master.png)
+
+![slave](screenshots/slave.png)
+
+![obsazene-terce](obsazene-terce.png)
+
+![turnaj](screenshots/turnaj.png)
+
 ## Rychlý start (Windows)
 
 ### 1) Požadavky
@@ -37,6 +47,8 @@ Webová aplikace pro vedení šipkařské ligy a zápasů. Běží lokálně na 
    - při prvním spuštění se nainstalují závislosti (`npm install`)
 3. V prohlížeči se otevře hra
 4. V konzoli uvidíš IP adresu pro ostatní zařízení (např. `192.168.1.50:8080`)
+
+![server](screenshots/server.png)
 
 ### 3) Připojení telefonu/tabletu
 1. Telefon/tablet musí být na stejné Wi‑Fi
