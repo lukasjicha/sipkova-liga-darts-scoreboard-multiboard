@@ -1,6 +1,6 @@
-# 🎯 Darts League – Multi‑Board Edition (CZ)
+🎯 Darts League – Šipková liga & Darts Scoreboard (CZ)
 
-Webová aplikace pro vedení šipkařské ligy a zápasů. Běží lokálně na PC (Node.js server) a umí zobrazovat více terčů současně na dalších zařízeních v síti (telefony/tablety/TV).
+Webová aplikace pro vedení šipkařské ligy a zápasů. Běží lokálně na PC (Node.js server) a umí zobrazovat více terčů současně na dalších zařízeních v síti (telefony/tablety).
 
 ## Co to umí
 
