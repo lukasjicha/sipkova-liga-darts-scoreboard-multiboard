@@ -2,6 +2,8 @@
 
 Webová aplikace pro vedení šipkařské ligy a zápasů. Běží lokálně na PC (Node.js server) a umí zobrazovat více terčů současně na dalších zařízeních v síti (telefony/tablety).
 
+
+![Logo projektu](screenshots/main.png)
 ## Co to umí
 
 ### Herní režimy
