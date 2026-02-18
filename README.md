@@ -31,7 +31,7 @@ Webová aplikace pro vedení šipkařské ligy a zápasů. Běží lokálně na 
 
 ![slave](screenshots/slave.png)
 
-![obsazene_terce](obsazene_terce.png)   
+![obsazene_terce](screenshots/obsazene_terce.png)   
 
 ![turnaj](screenshots/turnaj.png)
 
