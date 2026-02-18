@@ -2,6 +2,8 @@
 
 Webová aplikace pro vedení šipkařské ligy a zápasů. Běží lokálně na PC (Node.js server) a umí zobrazovat více terčů současně na dalších zařízeních v síti (telefony/tablety).
 
+Pokud hledáte aplikaci jen pro jeden terč je zde: https://github.com/lukasjicha/sipkova-liga-darts-scoreboard.git
+
 
 ![Logo projektu](screenshots/main.png)
 ## Co to umí
