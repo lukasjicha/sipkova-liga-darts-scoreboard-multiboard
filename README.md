@@ -5,7 +5,7 @@ Webová aplikace pro vedení šipkařské ligy a zápasů. Běží lokálně na 
 Pokud hledáte aplikaci jen pro jeden terč je zde: https://github.com/lukasjicha/sipkova-liga-darts-scoreboard.git
 
 
-![Logo projektu](screenshots/main.png)
+![Logo projektu](screenshots/choice.png)
 ## Co to umí
 
 ### Herní režimy
