@@ -56,7 +56,7 @@ Pokud hledáte aplikaci jen pro jeden terč je zde: https://github.com/lukasjich
 ### 3) Připojení telefonu/tabletu
 1. Telefon/tablet musí být na stejné Wi‑Fi
 2. Otevři prohlížeč a zadej adresu z PC (např. `http://192.168.1.50:8080`)
-3. Pokud master tvolil jeden terč jses sledující 
+3. Pokud master zvolil jeden terč jses sledující 
 4. Pokud zvolil master více terčů vybíráš si číslo terče
 
 ## Jak používat jeden terč (doporučený postup)
