@@ -27,11 +27,13 @@ Pokud hledáte aplikaci jen pro jeden terč je zde: https://github.com/lukasjich
 - **Zvuk / „hospodský mód“** (hlášky, emoce – CZ)
 - **Import / export dat** do **JSON** (záloha, přenos na jiné zařízení)
 
-![volba](screenshots/volba.png)
+![game](screenshots/game.png)
 
-![master](screenshots/master.png)
+![multi](screenshots/multi-slave.jpg)
 
-![slave](screenshots/slave.png)
+![live](screenshots/live.jpg)
+
+![livegame](screenshots/live-game.jpg)
 
 ![obsazene_terce](screenshots/obsazene_terce.png)   
 
