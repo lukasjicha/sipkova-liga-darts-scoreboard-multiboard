@@ -16,8 +16,8 @@ Pokud hledáte aplikaci jen pro jeden terč je zde: https://github.com/lukasjich
 ### Multi‑board (až 4 terče)
 - **T1–T4** 
 - **Master = vždy T1** (řídí hru, nastavuje počet terčů)
-- **Display (Slave)** = T2–T4 (jen zobrazení daného terče)
-- **Automatická synchronizace počtu terčů** (Master nastaví 2/3/4 → ostatní se přizpůsobí)
+- **Slave  = T2–T4 nebo sledující ** (v případě více terčů ovladá svuj terč, pokud je jen jeden terč je pouze sledující)
+- **Automatická synchronizace počtu terčů** 
 - **Claim terče**: server hlídá, aby si dva displeje nevzaly stejný terč
 - **Zámky hráčů**: hráč nemůže být vybraný na dvou terčích zároveň (zamezí chybám)
 
@@ -50,22 +50,28 @@ Pokud hledáte aplikaci jen pro jeden terč je zde: https://github.com/lukasjich
 3. V prohlížeči se otevře hra
 4. V konzoli uvidíš IP adresu pro ostatní zařízení (např. `192.168.1.50:8080`)
 
+
 ![server](screenshots/server.png)
 
 ### 3) Připojení telefonu/tabletu
 1. Telefon/tablet musí být na stejné Wi‑Fi
 2. Otevři prohlížeč a zadej adresu z PC (např. `http://192.168.1.50:8080`)
-3. Zvol **Více terčů → Display**
-4. Vyber terč **T2/T3/T4** (T1 je Master)
+3. Pokud master tvolil jeden terč jses sledující 
+4. Pokud zvolil master více terčů vybíráš si číslo terče
 
-## Jak používat multi‑board (doporučený postup)
+## Jak používat jeden terč (doporučený postup)
 
-1. Na PC otevři aplikaci → **Více terčů → Master**
-2. Nastav **počet terčů (2/3/4)** a připoj se
-3. Na dalších zařízeních otevři stejnou IP → **Display** → vyber volný terč
-4. Při výběru hráčů se automaticky hlídá:
+1. Na PC otevři aplikaci → **Jeden terč ** → jseš Master → ovládáš hru 
+2. Ostatní připojení jsou jen sledující a nemohou zasahovat. 
+
+## Jak používat Více terčů (doporučený postup)
+
+1. Na PC otevři aplikaci → **Více terčů ** → jseš Master → ovládáš hru a terč 1 
+2. Na dalších zařízeních otevři stejnou IP → **T2/T3/T4** → vyber volný terč → ovladáš svuj terč
+3. Při výběru hráčů se automaticky hlídá:
    - hráč není na více terčích zároveň
    - terč není obsazený dvěma displeji
+4. Pokud master spustí Turnaj tak si vybíraš dvojici na svůj terč
 
 ## Struktura projektu
 - `server.js` – Node.js server + WebSocket synchronizace
@@ -84,6 +90,8 @@ V aplikaci je sekce **Správa dat**:
 - **Dva displeje na stejném terči**: server to zamítne a nabídne volný terč (claim systém).
 
 ## Licence
-Doplň si dle potřeby (MIT / GPL / vlastní).
+Projekt je zdarma k použití.
+
+Pokud si ho upravíš nebo vylepšíš, klidně si ho forkni.
 
 
