@@ -80,6 +80,34 @@
 .slave-players .p-checkout{font-size:.85rem}
 .slave-players .dart-tag{font-size:.6rem}
 
+/* ═══ SPECTATOR / VIEWER MODE ═══ */
+.spectator-overlay{position:fixed;inset:0;background:var(--bg);z-index:200;display:none;flex-direction:column}
+.spectator-overlay.active{display:flex}
+.spectator-header{background:var(--surface);border-bottom:2px solid var(--gold);padding:.5rem 1.2rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.spectator-header .gh-title{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:700;color:var(--gold);letter-spacing:.1em;text-transform:uppercase}
+.spectator-badge{font-family:'Oswald',sans-serif;font-size:.75rem;padding:.2rem .6rem;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text-dim)}
+.spectator-status{font-size:.65rem;padding:.2rem .7rem;border-radius:12px;background:var(--green-glow);border:1px solid var(--green);color:var(--green)}
+.spectator-status.waiting{background:rgba(240,165,0,.15);border-color:var(--gold);color:var(--gold)}
+.spectator-status.error{background:var(--accent-glow);border-color:var(--accent);color:var(--accent)}
+.spectator-body{flex:1;overflow:auto;padding:1.2rem;position:relative}
+.spectator-watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0}
+.spectator-players{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));position:relative;z-index:1}
+.spectator-players .p-card{padding:1.2rem 1.5rem;cursor:default}
+.spectator-players .p-card:hover{border-color:var(--border)}
+.spectator-players .p-card.active{border-color:var(--accent);box-shadow:0 0 24px var(--accent-glow)}
+.spectator-players .p-score{font-size:4rem}
+.spectator-players .p-name{font-size:1.3rem}
+.spectator-players .p-meta{font-size:.75rem}
+.spectator-players .p-checkout{font-size:.9rem}
+.spectator-players .dart-tag{font-size:.65rem}
+.spectator-waiting{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:1.5rem;color:var(--text-dim)}
+.spectator-waiting-icon{font-size:4rem;animation:pulse 2s infinite}
+.spectator-waiting-text{font-family:'Oswald',sans-serif;font-size:1.5rem;font-weight:600;color:var(--gold);letter-spacing:.1em;text-transform:uppercase}
+.spectator-waiting-sub{font-size:.75rem;color:var(--text-muted)}
+.spectator-turn-banner{position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--accent);border-radius:8px;padding:.4rem 1.2rem;font-family:'Oswald',sans-serif;font-size:.9rem;color:var(--accent);letter-spacing:.08em;white-space:nowrap;z-index:10;animation:fadeIn .3s ease}
+.spectator-fullscreen-btn{padding:.3rem .6rem;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text-dim);font-size:.75rem;cursor:pointer;transition:all .15s}
+.spectator-fullscreen-btn:hover{border-color:var(--gold);color:var(--gold)}
+
 /* Board assignment dropdown in roster */
 .board-assign{margin-left:.4rem}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -604,73 +632,50 @@ body{font-family:'IBM Plex Mono',monospace;background:var(--bg);color:var(--text
       <div class="logo-title">Darts League</div>
       <div class="logo-sub">Multi-Board Edition</div>
     </div>
-    <div class="mode-select-subtitle">Vyber režim podle počtu terčů</div>
-    <div class="mode-select-cards">
-      <div class="mode-card selected" data-mode="single" onclick="selectBoardMode('single')">
-        <div class="mode-card-icon">🎯</div>
-        <div class="mode-card-title">Jeden terč</div>
-        <div class="mode-card-desc">Klasický režim · Vše na jednom zařízení</div>
+    <div class="mode-select-subtitle" id="autoDetectStatus">Načítám...</div>
+    <!-- Shown only when this device is master (no master yet on server) -->
+    <div id="masterModeChoice" style="display:none;flex-direction:column;align-items:center;gap:1.5rem;width:100%">
+      <div class="mode-select-subtitle">Vyber režim hry</div>
+      <div class="mode-select-cards">
+        <div class="mode-card selected" data-mode="single" onclick="selectBoardMode('single')">
+          <div class="mode-card-icon">🎯</div>
+          <div class="mode-card-title">Jeden terč</div>
+          <div class="mode-card-desc">Klasický režim · ostatní zařízení = diváci</div>
+        </div>
+        <div class="mode-card" data-mode="multi" onclick="selectBoardMode('multi')">
+          <div class="mode-card-icon">🎯🎯</div>
+          <div class="mode-card-title">Více terčů</div>
+          <div class="mode-card-desc">2–4 terče · synchronizace mezi zařízeními</div>
+        </div>
       </div>
-      <div class="mode-card" data-mode="multi" onclick="selectBoardMode('multi')">
-        <div class="mode-card-icon">🎯🎯</div>
-        <div class="mode-card-title">Více terčů</div>
-        <div class="mode-card-desc">2-3 terče · Synchronizace mezi zařízeními</div>
-      </div>
+      <button class="mode-select-btn" id="modeSelectBtn" onclick="confirmBoardMode()">POKRAČOVAT</button>
     </div>
-    <button class="mode-select-btn" id="modeSelectBtn" onclick="confirmBoardMode()">POKRAČOVAT</button>
   </div>
 </div>
 
-<!-- ═══════ ROLE SELECTION SCREEN (Multi-board) ═══════ -->
+<!-- ═══════ SLAVE BOARD PICK SCREEN (Auto-assigned slave, just picks board T2-T4) ═══════ -->
 <div class="screen" id="roleSelectScreen">
   <div class="role-select-screen">
     <div class="logo-wrap">
       <img src="" id="logoRoleSelect" width="100" height="100">
-      <div class="logo-title">Multi-Board Setup</div>
+      <div class="logo-title">Připojuji se k serveru</div>
     </div>
-    <div class="mode-select-subtitle">Vyber roli tohoto zařízení</div>
+    <div class="mode-select-subtitle">Vyber číslo terče tohoto zařízení</div>
     <div class="role-cards">
-      <div class="role-card master" onclick="selectRole('master')">
-        <div class="role-card-icon">👑</div>
-        <div class="role-card-title">Master</div>
-        <div class="role-card-desc">Hlavní zařízení · Řídí hru · Hlavní terč T1</div>
+      <div class="role-card slave" onclick="autoSlaveConnect(2)">
+        <div class="role-card-icon">🎯</div>
+        <div class="role-card-title">Terč 2</div>
       </div>
-      <div class="role-card slave" onclick="selectRole('slave')">
-        <div class="role-card-icon">📱</div>
-        <div class="role-card-title">Slave</div>
-        <div class="role-card-desc">Terče T2–T4</div>
+      <div class="role-card slave" onclick="autoSlaveConnect(3)">
+        <div class="role-card-icon">🎯</div>
+        <div class="role-card-title">Terč 3</div>
       </div>
-    </div>
-    
-    <div class="session-setup" id="sessionSetup" style="display:none">
-      <div class="session-row">
-        <span class="session-label">Session ID:</span>
-        <input class="session-input" id="sessionIdInput" placeholder="např. DARTS-123" maxlength="20">
-        <button class="session-btn" onclick="generateSessionId()">🎲</button>
-      </div>
-      <div class="session-row" id="boardCountRow" style="display:none">
-        <span class="session-label">Počet terčů:</span>
-        <div class="board-select">
-          <button class="board-btn active" data-count="2" onclick="setBoardCount(2)">2</button>
-          <button class="board-btn" data-count="3" onclick="setBoardCount(3)">3</button>
-          <button class="board-btn" data-count="4" onclick="setBoardCount(4)">4</button>
-        </div>
-      </div>
-      <div class="board-assignment" id="boardAssignment" style="display:none">
-        <div class="board-label">Tento display zobrazuje terč:</div>
-        <div class="board-select" id="boardSelectBtns">
-          <button class="board-btn active" data-board="1" onclick="setMyBoard(1)">Terč 1</button>
-          <button class="board-btn" data-board="2" onclick="setMyBoard(2)">Terč 2</button>
-          <button class="board-btn" data-board="3" onclick="setMyBoard(3)">Terč 3</button>
-          <button class="board-btn" data-board="4" onclick="setMyBoard(4)">Terč 4</button>
-        </div>
-      </div>
-      <div class="session-status waiting" id="sessionStatus" style="display:none">Čekám na připojení...</div>
-      <div style="margin-top:.8rem;display:flex;gap:.5rem">
-        <button class="mode-select-btn" style="flex:1;padding:.6rem" id="connectBtn" onclick="connectSession()" disabled>PŘIPOJIT</button>
-        <button class="session-btn" style="padding:.6rem 1rem" onclick="backToModeSelect()">← Zpět</button>
+      <div class="role-card slave" onclick="autoSlaveConnect(4)">
+        <div class="role-card-icon">🎯</div>
+        <div class="role-card-title">Terč 4</div>
       </div>
     </div>
+    <div class="session-status waiting" id="slaveConnectStatus" style="display:none">Připojuji...</div>
   </div>
 </div>
 
@@ -769,7 +774,7 @@ body{font-family:'IBM Plex Mono',monospace;background:var(--bg);color:var(--text
 
   </div>
 </div>
-<div class="version-footer">v1.0.0 Multi-Board · LuckyLuke81</div>
+<div class="version-footer">v1.1.0 Multi-Board · LuckyLuke81</div>
 <div class="screen" id="gameScreen">
   <div class="game-header">
     <div class="gh-left">
@@ -780,6 +785,7 @@ body{font-family:'IBM Plex Mono',monospace;background:var(--bg);color:var(--text
     <div class="gh-btns">
       <button class="btn-sm" id="soundToggle" onclick="toggleSound()">🔊</button>
       <button class="btn-sm" id="pubToggle" onclick="togglePubMode()" title="Hospodské hlášky">🍺</button>
+      <button class="btn-sm" onclick="showSpectatorUrl()" title="URL pro sledovatele" style="color:var(--gold)">📺</button>
       <button class="btn-sm" id="fullscreenBtn" onclick="toggleFullscreen()" title="Celá obrazovka">⛶</button>
       <button class="btn-sm" onclick="undoLastTurn()">↩ Zpět tah</button>
       <button class="btn-sm" onclick="endGame()">✕ Konec hry</button>
@@ -928,6 +934,31 @@ body{font-family:'IBM Plex Mono',monospace;background:var(--bg);color:var(--text
   </div>
 </div>
 
+<!-- ═══════ SPECTATOR / VIEWER OVERLAY ═══════ -->
+<div class="spectator-overlay" id="spectatorOverlay">
+  <div class="spectator-header">
+    <div class="gh-left">
+      <img src="" id="logoSpectator" class="gh-logo" style="width:28px;height:28px">
+      <span class="gh-title">DARTS LEAGUE</span>
+    </div>
+    <span class="spectator-badge" id="spectatorModeBadge">Sledovací režim</span>
+    <div style="display:flex;align-items:center;gap:.5rem">
+      <span class="spectator-status waiting" id="spectatorStatus">⏳ Čekám na hru...</span>
+      <button class="spectator-fullscreen-btn" onclick="toggleSpectatorFullscreen()" title="Celá obrazovka">⛶</button>
+    </div>
+  </div>
+  <div class="spectator-body" id="spectatorBody">
+    <div class="spectator-watermark"><img src="" id="logoSpectatorWm" class="wm-img"></div>
+    <div id="spectatorContent">
+      <div class="spectator-waiting">
+        <div class="spectator-waiting-icon">🎯</div>
+        <div class="spectator-waiting-text">Čekám na zahájení hry</div>
+        <div class="spectator-waiting-sub">Připoj se na server a počkej až master spustí hru</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 // ════════ MULTI-BOARD SYSTEM (WebSocket) ════════
 // Multi-board mode:
@@ -968,11 +999,24 @@ function selectBoardMode(mode) {
 }
 
 function confirmBoardMode() {
-  if (boardMode === 'single') {
+  mbRole = 'master';
+  setMyBoard(1);
+  const count = (boardMode === 'single') ? 1 : 4;
+  mbBoardCount = count;
+  const wsUrl = `ws://${window.location.host}/ws?role=master&deviceId=${mbMyDeviceId}`;
+  mbSocket = new WebSocket(wsUrl);
+  mbSocket.onopen = () => {
+    mbSendMessage({ type: 'board_count_set', count });
+    mbSendMessage({ type: 'board_claim', boardId: 1 });
+    showMbIndicator();
     switchScreen('rosterScreen');
-  } else {
-    switchScreen('roleSelectScreen');
-  }
+    renderRoster();
+  };
+  mbSocket.onmessage = (event) => {
+    try { const msg = JSON.parse(event.data); processMbMessage(msg); } catch(e) {}
+  };
+  mbSocket.onclose = () => {};
+  mbSocket.onerror = () => {};
 }
 
 function backToModeSelect() {
@@ -1591,11 +1635,285 @@ function updateMbIndicator() {
 
 // ════════ LEGACY FUNCTIONS (not used in tournament multi-board) ════════
 function mbBroadcastGameState() {
-  // Not used - tournament uses mbBroadcastTournament instead
+  // Broadcast current game state to viewers (spectators) and slaves
+  if (!mbSocket || mbSocket.readyState !== WebSocket.OPEN) return;
+  if (!players || players.length === 0) return;
+
+  const state = {
+    type: 'game_state',
+    gameMode: gameMode,
+    checkoutMode: checkoutMode,
+    curIdx: curIdx,
+    players: players.map(p => ({
+      name: p.name,
+      score: p.score,
+      finished: p.finished,
+      finishPos: p.finishPos || 0,
+      dartsThrown: p.dartsThrown,
+      pointsScored: p.pointsScored,
+      history: p.history.slice(-1) // just last turn for darts display
+    })),
+    curDarts: curDarts,
+    gameActive: true
+  };
+  mbSendMessage(state);
 }
 
 function renderSlaveDisplay(state) {
   // Not used - slave shows tournament bracket
+}
+
+// ════════ SPECTATOR / VIEWER MODE ════════
+let spectatorSocket = null;
+let spectatorReconnectTimer = null;
+
+function initSpectatorMode() {
+  // Show spectator overlay immediately
+  document.getElementById('spectatorOverlay').classList.add('active');
+  connectSpectator();
+}
+
+function connectSpectator() {
+  const wsUrl = `ws://${window.location.host}/ws?role=viewer&deviceId=viewer_${Date.now()}`;
+  try {
+    spectatorSocket = new WebSocket(wsUrl);
+
+    spectatorSocket.onopen = () => {
+      console.log('Spectator connected');
+      setSpectatorStatus('connected', '🟢 Připojeno');
+    };
+
+    spectatorSocket.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.type === 'game_state') {
+          renderSpectatorGame(msg);
+        } else if (msg.type === 'game_end') {
+          showSpectatorWaiting('Hra skončila – čekám na další...');
+        }
+      } catch (e) {}
+    };
+
+    spectatorSocket.onclose = () => {
+      setSpectatorStatus('error', '🔴 Odpojeno – zkouším znovu...');
+      clearTimeout(spectatorReconnectTimer);
+      spectatorReconnectTimer = setTimeout(connectSpectator, 3000);
+    };
+
+    spectatorSocket.onerror = () => {
+      setSpectatorStatus('error', '⚠ Chyba připojení');
+    };
+  } catch (e) {
+    setSpectatorStatus('error', '⚠ Nelze se připojit');
+    spectatorReconnectTimer = setTimeout(connectSpectator, 5000);
+  }
+}
+
+function setSpectatorStatus(type, text) {
+  const el = document.getElementById('spectatorStatus');
+  el.className = 'spectator-status' + (type !== 'connected' ? ' ' + type : '');
+  el.textContent = text;
+}
+
+function showSpectatorWaiting(msg) {
+  const content = document.getElementById('spectatorContent');
+  content.innerHTML = `<div class="spectator-waiting">
+    <div class="spectator-waiting-icon">🎯</div>
+    <div class="spectator-waiting-text">${msg || 'Čekám na zahájení hry'}</div>
+    <div class="spectator-waiting-sub">Připoj se na server a počkej až master spustí hru</div>
+  </div>`;
+  document.getElementById('spectatorModeBadge').textContent = 'Sledovací režim';
+}
+
+function renderSpectatorGame(state) {
+  if (!state || !state.players || state.players.length === 0) {
+    showSpectatorWaiting();
+    return;
+  }
+
+  setSpectatorStatus('connected', '🟢 LIVE');
+
+  // Update mode badge
+  const modeStr = state.gameMode === 'cricket' ? 'Cricket' :
+    (state.gameMode + ' · ' + (state.checkoutMode === 'double' ? 'Double Out' : 'Straight Out'));
+  document.getElementById('spectatorModeBadge').textContent = modeStr;
+
+  const content = document.getElementById('spectatorContent');
+  const medals = ['', '🥇', '🥈', '🥉'];
+  const curIdx = state.curIdx;
+
+  let html = '<div class="spectator-players">';
+  state.players.forEach((pl, i) => {
+    const isActive = i === curIdx && !pl.finished;
+    const avg = pl.dartsThrown > 0 ? (pl.pointsScored / (pl.dartsThrown / 3)).toFixed(1) : '–';
+    const cardClass = 'p-card' + (isActive ? ' active' : '') + (pl.finished ? ' finished' : '');
+    const rank = pl.finishPos ? `<div class="p-rank">${medals[pl.finishPos] || '#' + pl.finishPos}</div>` : '';
+    const scoreDisplay = pl.finished ? '✓' : pl.score;
+
+    // Darts from last turn or current
+    let dts = '';
+    if (i === curIdx && state.curDarts && state.curDarts.length) {
+      dts = '<div class="p-darts">' + state.curDarts.map(d =>
+        `<span class="dart-tag ${d.cl}">${d.label}</span>`).join('') + '</div>';
+    } else if (pl.history && pl.history.length) {
+      const last = pl.history[pl.history.length - 1];
+      if (last && last.darts) {
+        dts = '<div class="p-darts">' + last.darts.map(d =>
+          `<span class="dart-tag ${d.cl}">${d.label}</span>`).join('') +
+          (last.bust ? '<span class="dart-tag miss">BUST</span>' : '') + '</div>';
+      }
+    }
+
+    // Checkout hint
+    let ckHtml = '';
+    if (!pl.finished && state.gameMode !== 'cricket') {
+      const rem = i === curIdx
+        ? pl.score - (state.curDarts || []).reduce((s, d) => s + d.score, 0)
+        : pl.score;
+      if (rem <= 170 && rem > 1 && CK[rem]) {
+        const routes = CK[rem];
+        const dartsLeft = i === curIdx ? 3 - (state.curDarts || []).length : 3;
+        const valid = routes.filter(r => r.split(' ').length <= dartsLeft);
+        const show = valid.length ? valid : routes;
+        ckHtml = `<div class="p-checkout">🎯 ${show[0]}${show.length > 1 ? `<span class="ck-alt"> · ${show.slice(1, 3).join(' · ')}</span>` : ''}</div>`;
+      }
+    }
+
+    html += `<div class="${cardClass}">
+      ${rank}
+      <div class="p-name">${pl.name}</div>
+      <div class="p-body">
+        <div class="p-left"><div class="p-score">${scoreDisplay}</div></div>
+        <div class="p-right">
+          <div class="p-meta">Ø ${avg} · ${pl.dartsThrown} šipek</div>
+          ${dts}${ckHtml}
+        </div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+
+  // Active player banner
+  if (!state.players.every(p => p.finished)) {
+    const active = state.players[curIdx];
+    if (active && !active.finished) {
+      html += `<div class="spectator-turn-banner">🎯 Hází: ${active.name} · zbývá ${active.score}</div>`;
+    }
+  }
+
+  content.innerHTML = html;
+}
+
+function toggleSpectatorFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+  } else {
+    document.exitFullscreen && document.exitFullscreen();
+  }
+}
+
+function showSpectatorUrl() {
+  const url = `${window.location.protocol}//${window.location.host}/spectator`;
+  alert(`📺 Sledovací URL:\n\n${url}\n\nOtevři tuto adresu na tabletu nebo TV pro sledování skóre bez ovládacích prvků.`);
+}
+
+// ════════ AUTO-DETECT SESSION MODE ════════
+// When a new device connects, check if master is already running in single mode.
+// If yes → auto-spectate. If multi mode → show normal mode select.
+async function autoDetectSessionMode() {
+  const statusEl = document.getElementById('autoDetectStatus');
+  if (statusEl) statusEl.textContent = 'Zjišťuji stav serveru...';
+  try {
+    const res = await fetch('/session-mode');
+    if (!res.ok) throw new Error('server error');
+    const data = await res.json();
+    if (data.hasMaster) {
+      // Master already running
+      if (data.masterMode === 'single') {
+        // Single-board mode → auto spectator
+        initSpectatorMode();
+      } else {
+        // Multi-board → slave board picker
+        if (statusEl) statusEl.textContent = 'Server nalezen – vyber terč';
+        boardMode = 'multi';
+        mbBoardCount = 4;
+        switchScreen('roleSelectScreen');
+      }
+    } else {
+      // No master yet → this is the master device → show mode choice
+      if (statusEl) statusEl.textContent = 'Jsi první – vyber režim hry';
+      const choiceEl = document.getElementById('masterModeChoice');
+      if (choiceEl) choiceEl.style.display = 'flex';
+    }
+  } catch (e) {
+    // Server unreachable - offline single device
+    if (statusEl) statusEl.textContent = 'Offline – spouštím lokálně';
+    boardMode = 'single';
+    setTimeout(() => switchScreen('rosterScreen'), 800);
+  }
+}
+
+// ════════ AUTO SLAVE CONNECT ════════
+function autoSlaveConnect(boardNum) {
+  const statusEl = document.getElementById('slaveConnectStatus');
+  if (statusEl) { statusEl.style.display = 'block'; statusEl.textContent = 'Připojuji jako Terč ' + boardNum + '...'; }
+  mbRole = 'slave';
+  mbBoardCount = 4;
+  setMyBoard(boardNum);
+  const wsUrl = `ws://${window.location.host}/ws?role=slave&deviceId=${mbMyDeviceId}`;
+  try {
+    mbSocket = new WebSocket(wsUrl);
+    mbSocket.onopen = () => {
+      mbSendMessage({ type: 'slave_join' });
+      mbSendMessage({ type: 'board_claim', boardId: boardNum });
+      mbSendMessage({ type: 'request_roster' });
+      showMbIndicator();
+      if (statusEl) statusEl.textContent = '✓ Připojeno jako Terč ' + boardNum;
+    };
+    mbSocket.onmessage = (event) => {
+      try { const msg = JSON.parse(event.data); processMbMessage(msg); } catch(e) {}
+    };
+    mbSocket.onclose = () => {
+      if (statusEl) { statusEl.textContent = 'Odpojeno – zkouším znovu...'; statusEl.className = 'session-status error'; }
+      clearTimeout(mbReconnectTimer);
+      mbReconnectTimer = setTimeout(() => autoSlaveConnect(boardNum), 3000);
+    };
+    mbSocket.onerror = () => {
+      if (statusEl) { statusEl.textContent = 'Chyba připojení!'; statusEl.className = 'session-status error'; }
+    };
+  } catch(e) {
+    if (statusEl) { statusEl.textContent = 'Chyba!'; statusEl.className = 'session-status error'; }
+  }
+}
+
+
+function autoConnectMasterForSpectators() {
+  // In single mode, silently connect as master so spectators can receive game_state
+  if (mbRole !== null) return; // already connected in multi mode
+  mbRole = 'master';
+  mbMyDeviceId = mbMyDeviceId || 'master_single_' + Date.now();
+  const wsUrl = `ws://${window.location.host}/ws?role=master&deviceId=${mbMyDeviceId}`;
+  try {
+    mbSocket = new WebSocket(wsUrl);
+    mbSocket.onopen = () => {
+      console.log('Auto-connected as master for spectators');
+      mbSendMessage({ type: 'board_count_set', count: 1 });
+    };
+    mbSocket.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        // Ignore most messages in single mode - just keep connection alive
+      } catch (e) {}
+    };
+    mbSocket.onclose = () => {
+      // Don't auto-reconnect in single mode
+      mbSocket = null;
+    };
+    mbSocket.onerror = () => { mbSocket = null; };
+  } catch (e) {
+    mbSocket = null;
+    mbRole = null;
+  }
 }
 // ════════ PERSISTENCE ════════
 const ROSTER_KEY = 'uragan_roster';
@@ -1635,8 +1953,19 @@ window.addEventListener('DOMContentLoaded', () => {
   if (logoRoleSelect) logoRoleSelect.src = src;
   if (logoSlave) logoSlave.src = src;
   if (logoSlaveWm) logoSlaveWm.src = src;
+  const logoSpectator = document.getElementById('logoSpectator');
+  const logoSpectatorWm = document.getElementById('logoSpectatorWm');
+  if (logoSpectator) logoSpectator.src = src;
+  if (logoSpectatorWm) logoSpectatorWm.src = src;
   renderRoster();
   buildNums();
+  // Auto-init spectator mode if URL is /spectator or ?spectator=1
+  if (window.location.pathname === '/spectator' || window.location.search.includes('spectator=1')) {
+    initSpectatorMode();
+  } else {
+    // Check server session mode - if single board master is active, auto-spectate
+    autoDetectSessionMode();
+  }
 });
 // Recalc grid on resize if game is active
 let resizeTimer;
@@ -2023,6 +2352,10 @@ function startGame() {
   document.getElementById('cricketPanel').style.display = 'none';
   document.getElementById('playersGrid').style.display = '';
   document.getElementById('modeBadge').textContent = `${gameMode} · ${checkoutMode === 'double' ? 'Double Out' : 'Straight Out'}`;
+  // Auto-connect as master in single mode to enable spectator broadcasting
+  if (boardMode === 'single' && (!mbSocket || mbSocket.readyState !== WebSocket.OPEN)) {
+    autoConnectMasterForSpectators();
+  }
   renderGame();
   const modeText = gameMode === 501 ? 'pět set jedna' : gameMode === 301 ? 'tři sta jedna' : String(gameMode);
   const coText = checkoutMode === 'double' ? 'dabl aut' : 'singl aut';
@@ -3041,6 +3374,10 @@ function endGame() {
   if (boardMode === 'multi' && mbRole === 'master') {
     mbSendMessage({ type: 'game_end' });
   }
+  // Notify viewers in single mode
+  if (boardMode === 'single' && mbSocket && mbSocket.readyState === WebSocket.OPEN) {
+    mbSendMessage({ type: 'game_end' });
+  }
   
   if (tournMode) {
     switchScreen('tournScreen');
@@ -3099,6 +3436,9 @@ function startCricketGame() {
   document.getElementById('cricketPanel').style.display = '';
   document.getElementById('playersGrid').style.display = 'none';
   document.getElementById('modeBadge').textContent = 'Cricket';
+  if (boardMode === 'single' && (!mbSocket || mbSocket.readyState !== WebSocket.OPEN)) {
+    autoConnectMasterForSpectators();
+  }
   renderCricket();
   speak('Kriket začíná!', 0.9);
   sayPlayerTurn(ckPlayers[0].name);
