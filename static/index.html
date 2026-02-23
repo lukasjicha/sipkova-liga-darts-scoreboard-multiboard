@@ -774,7 +774,7 @@ body{font-family:'IBM Plex Mono',monospace;background:var(--bg);color:var(--text
 
   </div>
 </div>
-<div class="version-footer">v1.1.0 Multi-Board · LuckyLuke81</div>
+<div class="version-footer">v1.1.1 Multi-Board · LuckyLuke81</div>
 <div class="screen" id="gameScreen">
   <div class="game-header">
     <div class="gh-left">
@@ -3654,14 +3654,15 @@ function botPlayX01() {
 
 function botAnimateDarts(darts, i) {
   if (i >= darts.length) {
+    lockInput(false);
     if (curDarts.length > 0) {
-      lockInput(false);
       finishTurn(false);
     }
+    // If curDarts is empty, bustTurn() already called advancePlayer() -> scheduleBotTurn()
     return;
   }
   const d = darts[i];
-  if (players[curIdx].finished) { lockInput(false); return; }
+  if (players[curIdx] && players[curIdx].finished) { lockInput(false); return; }
   // Temporarily unlock for bot throw
   const panel = document.getElementById('x01Panel');
   panel.style.pointerEvents = '';
@@ -3671,9 +3672,9 @@ function botAnimateDarts(darts, i) {
   else if (d.num === 25) { throwBull(); }
   else { throwNum(d.num); }
   panel.style.pointerEvents = 'none';
-  // If bust happened, curDarts was cleared - stop
-  if (curDarts.length === 0 && i < darts.length - 1) { lockInput(false); return; }
-  if (players[curIdx].score === 0) { lockInput(false); return; }
+  // If bust happened (curDarts cleared by bustTurn), stop - bustTurn already handled turn advance
+  if (curDarts.length === 0) { lockInput(false); return; }
+  if (players[curIdx] && players[curIdx].score === 0) { lockInput(false); return; }
   botTimer = setTimeout(() => botAnimateDarts(darts, i + 1), BOT_DELAY);
 }
 
@@ -3685,7 +3686,7 @@ function botGenerateX01Darts(score, level) {
     const d = botPickX01Dart(rem, level, i === 2);
     darts.push(d);
     rem -= d.score;
-    if (rem < 0) rem = score; // bust scenario - score resets, but we let the game handle it
+    if (rem < 0) break; // bust - stop generating, let the game handle it
   }
   return darts;
 }
